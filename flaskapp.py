@@ -134,6 +134,40 @@ def price_form_post():
     return viewprices(text)
 
 
+@app.route("/timequerytextbox", methods=['GET'])
+def time_form():
+    """
+    GET handler: renders the empty search form.
+    The 'fieldname' variable fills in the label text in textbox.html.
+    """
+    return render_template('textbox.html', fieldname="Milliseconds")
+
+@app.route("/timequerytextbox", methods=['POST'])
+def time_form_post():
+    """
+    POST handler: reads the millisecond value the user typed,
+    then calls viewtimes() to run the query and return the table.
+    """
+    text = request.form['text']
+    return viewtimes(text)
+
+@app.route("/timequery/<milliseconds>")
+def viewtimes(milliseconds):
+    """
+    Returns all tracks longer than the given number of milliseconds.
+    Can be called from the URL directly (/timequery/2950000)
+    or from the POST form handler above.
+    """
+    rows = execute_query("""
+        SELECT Artist.Name, Track.Name, Track.Milliseconds, Track.UnitPrice
+        FROM Artist
+        JOIN Album USING (ArtistId)
+        JOIN Track USING (AlbumId)
+        WHERE Track.Milliseconds > %s
+        ORDER BY Track.Milliseconds DESC
+        LIMIT 500
+    """, (str(milliseconds),))
+    return display_html(rows)
 
 # ---------------------------------------------------------------------------
 # Run the app
