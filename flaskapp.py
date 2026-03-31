@@ -79,18 +79,17 @@ def viewdb():
 @app.route("/artistquery/<artist_id>")
 def artistquery(artist_id):
     """
-    Fetches the first 20 tracks from the Chinook database
-    and returns them as an HTML table.
-    Route: /viewdb
+    Fetches all tracks for a specific artist by ArtistId.
+    Route: /artistquery/<artist_id>
     """
     rows = execute_query("""
-        SELECT ArtistId, Artist.Name, Track.Name, UnitPrice
+        SELECT Artist.ArtistId, Artist.Name, Track.Name, UnitPrice
         FROM Artist
-        WHERE ArtistId = artist_id
-        JOIN Album USING (ArtistID)
-        JOIN Track USING (AlbumID)
+        JOIN Album USING (ArtistId)
+        JOIN Track USING (AlbumId)
+        WHERE Artist.ArtistId = %s
         LIMIT 20
-    """)
+    """, (artist_id,))
     return display_html(rows)
 
 # TODO: Section 3 — add your /pricequerytextbox GET and POST routes here
